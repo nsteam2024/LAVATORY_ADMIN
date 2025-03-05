@@ -16,11 +16,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
 
+  final LoginBlocBloc _loginBloc = LoginBlocBloc();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider(
-        create: (context) => LoginBlocBloc(),
+      body: BlocProvider<LoginBlocBloc>.value(
+        value: _loginBloc,
         child: BlocConsumer<LoginBlocBloc, LoginBlocState>(
           listener: (context, state) {
             if (state is LoginSuccessState) {
@@ -121,154 +123,114 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Right side - Login form
                 Expanded(
                   flex: 1,
-                  child: Container(
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Lavatory',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Welcome back',
-                            style: TextStyle(color: Colors.black, fontSize: 18),
-                          ),
-                          SizedBox(height: 48),
-                          SizedBox(
-                            width: 500,
-                            child: TextField(
-                              controller: _emailController,
-                              style: TextStyle(color: Colors.black),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person_outline,
-                                  color: Colors.grey,
-                                ),
-                                labelText: 'Username',
-                                labelStyle: TextStyle(color: Colors.grey),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 24),
-                          SizedBox(
-                            width: 500,
-                            child: TextField(
-                              controller: _passwordController,
-                              obscureText: _isObscure,
-                              style: TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.lock_outline,
-                                  color: Colors.grey,
-                                ),
-                                labelText: 'Password',
-                                labelStyle: TextStyle(color: Colors.grey),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                suffixIcon: Icon(
-                                  Icons.visibility_off,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                'Forgot password?',
-                                style: TextStyle(color: Colors.blue),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          SizedBox(
-                            width: 500,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  BlocProvider.of<LoginBlocBloc>(context).add(
-                                    LoginEvent(
-                                      email: _emailController.text.trim(),
-                                      password: _passwordController.text.trim(),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(32),
-                                ),
-                              ),
-                              child: state is LoginLoadingState
-                                  ? CircularProgressIndicator(
-                                      color: Colors.white,
-                                    )
-                                  : Text('Login'),
-                            ),
-                          ),
-                          SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Expanded(child: Divider(color: Colors.grey)),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                child: Text(
-                                  'Or continue with',
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ),
-                              Expanded(child: Divider(color: Colors.grey)),
-                            ],
-                          ),
-                          SizedBox(height: 24),
-                          CircleAvatar(
-                            backgroundColor: Colors.grey.shade800,
-                            radius: 24,
-                            child: Text(
-                              'G',
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    child: Container(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Lavatory',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.blue,
+                                fontSize: 48,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
                               ),
                             ),
-                          ),
-                          SizedBox(height: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Don't have an account? ",
+                            SizedBox(height: 16),
+                            Text(
+                              'Welcome back',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 18),
+                            ),
+                            SizedBox(height: 48),
+                            SizedBox(
+                              width: 500,
+                              child: TextFormField(
+                                controller: _emailController,
                                 style: TextStyle(color: Colors.black),
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.person_outline,
+                                    color: Colors.grey,
+                                  ),
+                                  labelText: 'Username',
+                                  labelStyle: TextStyle(color: Colors.grey),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                ),
                               ),
-                              TextButton(
+                            ),
+                            SizedBox(height: 24),
+                            SizedBox(
+                              width: 500,
+                              child: TextFormField(
+                                controller: _passwordController,
+                                obscureText: _isObscure,
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.lock_outline,
+                                    color: Colors.grey,
+                                  ),
+                                  labelText: 'Password',
+                                  labelStyle: TextStyle(color: Colors.grey),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  suffixIcon: Icon(
+                                    Icons.visibility_off,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
                                 onPressed: () {},
                                 child: Text(
-                                  'Sign up',
+                                  'Forgot password?',
                                   style: TextStyle(color: Colors.blue),
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            SizedBox(height: 16),
+                            SizedBox(
+                              width: 500,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    _loginBloc.add(
+                                      LoginEvent(
+                                        email: _emailController.text.trim(),
+                                        password:
+                                            _passwordController.text.trim(),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                ),
+                                child: state is LoginLoadingState
+                                    ? CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
+                                    : Text('Login'),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
