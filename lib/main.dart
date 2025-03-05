@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lavatory_admin/home_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'features/login/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: LoginScreen(),
     );
   }
 }
