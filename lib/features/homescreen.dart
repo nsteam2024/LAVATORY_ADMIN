@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lavatory_admin/features/laundryhubs.dart';
+import 'package:lavatory_admin/features/dashboard.dart';
+import 'package:lavatory_admin/features/laundry_hubs/laundryhubs.dart';
+import 'package:lavatory_admin/features/login/login_screen.dart';
 import 'package:lavatory_admin/features/reportscreen.dart';
 import 'package:lavatory_admin/features/users_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   runApp(LaundryAdminApp());
@@ -35,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
     "Dashboard",
     "Laundry Hubs",
     "Users",
-    "Revenue",
     "Reports",
     "Feedbacks",
   ];
@@ -44,10 +46,23 @@ class _HomeScreenState extends State<HomeScreen> {
     DashboardScreen(),
     LaundryHubsScreen(),
     UsersPage(),
-    CenterScreen(title: "Reports"),
     ReportsScreen(),
     CenterScreen(title: "Feedbacks"),
   ];
+
+  @override
+  void initState() {
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (Supabase.instance.client.auth.currentUser == null) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+          (route) => false,
+        );
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,9 +184,9 @@ class NavigationDrawer extends StatelessWidget {
                 _buildNavItem(0, Icons.dashboard_outlined, 'Dashboard'),
                 _buildNavItem(1, Icons.store_outlined, 'Laundry Hubs'),
                 _buildNavItem(2, Icons.people_outlined, 'Users'),
-                _buildNavItem(3, Icons.attach_money_outlined, 'Revenue'),
-                _buildNavItem(4, Icons.insert_chart_outlined, 'Reports'),
-                _buildNavItem(5, Icons.comment_outlined, 'Feedbacks'),
+                // _buildNavItem(3, Icons.attach_money_outlined, 'Revenue'),
+                _buildNavItem(3, Icons.warning, 'Reports'),
+                _buildNavItem(4, Icons.comment_outlined, 'Feedbacks'),
               ],
             ),
           ),
@@ -212,242 +227,6 @@ class NavigationDrawer extends StatelessWidget {
         ),
         onTap: () => onItemSelected(index),
       ),
-    );
-  }
-}
-
-class DashboardScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Stats cards
-          GridView.count(
-            crossAxisCount: 4,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              _buildStatCard('Laundry Hubs', '40', Icons.store_outlined),
-              _buildStatCard('Total Users', '4000', Icons.people_outlined),
-              _buildStatCard(
-                'Current Reports',
-                '10',
-                Icons.description_outlined,
-              ),
-              _buildStatCard('Feedbacks', '270', Icons.comment_outlined),
-            ],
-          ),
-
-          SizedBox(height: 24),
-
-          // Charts row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Revenue chart
-              Expanded(
-                flex: 3,
-                child: Container(
-                  height: 300,
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 5,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Revenue',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: Image.network(
-                          'https://cdn.pixabay.com/photo/2023/01/04/03/24/bar-chart-7694897_1280.jpg',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              SizedBox(width: 16),
-
-              // Updates chart
-              Expanded(
-                flex: 2,
-                child: Container(
-                  height: 300,
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 5,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Updates',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: Image.network(
-                          'https://cdn.pixabay.com/photo/2018/01/12/16/15/graph-3078545_1280.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          _buildLegendItem('Pending', Colors.indigo),
-                          SizedBox(width: 16),
-                          _buildLegendItem('Process', Colors.yellow),
-                          SizedBox(width: 16),
-                          _buildLegendItem('Finished', Colors.red),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: 24),
-
-          // Recent activities
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 5,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent Activities',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          'https://ui-avatars.com/api/?name=User${index + 1}&background=0D8ABC&color=fff',
-                        ),
-                      ),
-                      title: Text('User ${index + 1} completed laundry'),
-                      subtitle: Text('2 hours ago'),
-                      trailing: Icon(Icons.more_vert),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, color: Colors.blue),
-              Text(
-                title,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
-              ),
-            ],
-          ),
-          Spacer(),
-          Text(
-            value,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          TextButton(
-            onPressed: () {},
-            child: Text('Manage'),
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size(0, 0),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              alignment: Alignment.centerLeft,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegendItem(String label, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        SizedBox(width: 4),
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-      ],
     );
   }
 }

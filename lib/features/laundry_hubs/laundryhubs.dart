@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lavatory_admin/features/laundry_hubs/add_edit_hub_dialog.dart';
 
 class LaundryHubsScreen extends StatefulWidget {
   @override
@@ -77,7 +78,7 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
     return _hubs.where((hub) {
       final matchesSearch =
           hub['name'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          hub['address'].toLowerCase().contains(_searchQuery.toLowerCase());
+              hub['address'].toLowerCase().contains(_searchQuery.toLowerCase());
 
       final matchesFilter =
           _filterValue == 'All' || hub['status'] == _filterValue;
@@ -112,7 +113,10 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                   onPressed: () {
-                    // Add hub logic
+                    showDialog(
+                      context: context,
+                      builder: (context) => AddEditHubDialog(),
+                    );
                   },
                 ),
               ],
@@ -120,94 +124,92 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
           ),
 
           // Filter and search section
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search hubs...',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 0),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(width: 16),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _filterValue,
-                      items:
-                          <String>[
-                            'All',
-                            'Active',
-                            'Inactive',
-                            'Maintenance',
-                          ].map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          _filterValue = newValue!;
-                        });
-                      },
-                      hint: Text('Status'),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.grid_view),
-                        color: _isGridView ? Colors.blue : Colors.grey,
-                        onPressed: () {
-                          setState(() {
-                            _isGridView = true;
-                          });
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.list),
-                        color: !_isGridView ? Colors.blue : Colors.grey,
-                        onPressed: () {
-                          setState(() {
-                            _isGridView = false;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //         child: TextField(
+          //           decoration: InputDecoration(
+          //             hintText: 'Search hubs...',
+          //             prefixIcon: Icon(Icons.search),
+          //             border: OutlineInputBorder(
+          //               borderRadius: BorderRadius.circular(8),
+          //             ),
+          //             contentPadding: EdgeInsets.symmetric(vertical: 0),
+          //             filled: true,
+          //             fillColor: Colors.white,
+          //           ),
+          //           onChanged: (value) {
+          //             setState(() {
+          //               _searchQuery = value;
+          //             });
+          //           },
+          //         ),
+          //       ),
+          //       SizedBox(width: 16),
+          //       Container(
+          //         padding: EdgeInsets.symmetric(horizontal: 12),
+          //         decoration: BoxDecoration(
+          //           color: Colors.white,
+          //           borderRadius: BorderRadius.circular(8),
+          //           border: Border.all(color: Colors.grey.shade300),
+          //         ),
+          //         child: DropdownButtonHideUnderline(
+          //           child: DropdownButton<String>(
+          //             value: _filterValue,
+          //             items: <String>[
+          //               'All',
+          //               'Active',
+          //               'Inactive',
+          //             ].map<DropdownMenuItem<String>>((String value) {
+          //               return DropdownMenuItem<String>(
+          //                 value: value,
+          //                 child: Text(value),
+          //               );
+          //             }).toList(),
+          //             onChanged: (newValue) {
+          //               setState(() {
+          //                 _filterValue = newValue!;
+          //               });
+          //             },
+          //             hint: Text('Status'),
+          //           ),
+          //         ),
+          //       ),
+          //       SizedBox(width: 16),
+          //       Container(
+          //         decoration: BoxDecoration(
+          //           color: Colors.white,
+          //           borderRadius: BorderRadius.circular(8),
+          //           border: Border.all(color: Colors.grey.shade300),
+          //         ),
+          //         child: Row(
+          //           children: [
+          //             IconButton(
+          //               icon: Icon(Icons.grid_view),
+          //               color: _isGridView ? Colors.blue : Colors.grey,
+          //               onPressed: () {
+          //                 setState(() {
+          //                   _isGridView = true;
+          //                 });
+          //               },
+          //             ),
+          //             IconButton(
+          //               icon: Icon(Icons.list),
+          //               color: !_isGridView ? Colors.blue : Colors.grey,
+          //               onPressed: () {
+          //                 setState(() {
+          //                   _isGridView = false;
+          //                 });
+          //               },
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
           // Stats summary
           Container(
@@ -238,7 +240,8 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
           ),
 
           // Hub list/grid
-          Expanded(child: _isGridView ? _buildGridView() : _buildListView()),
+          Expanded(child: _buildGridView()),
+          // Expanded(child: _isGridView ? _buildGridView() : _buildListView()),
         ],
       ),
     );
@@ -301,7 +304,7 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
           crossAxisCount: 3,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: 1.2,
+          childAspectRatio: 2 / 1.2,
         ),
         itemCount: filteredHubs.length,
         itemBuilder: (context, index) {
@@ -312,16 +315,16 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
     );
   }
 
-  Widget _buildListView() {
-    return ListView.builder(
-      padding: EdgeInsets.all(16),
-      itemCount: filteredHubs.length,
-      itemBuilder: (context, index) {
-        final hub = filteredHubs[index];
-        return _buildListCard(hub);
-      },
-    );
-  }
+  // Widget _buildListView() {
+  //   return ListView.builder(
+  //     padding: EdgeInsets.all(16),
+  //     itemCount: filteredHubs.length,
+  //     itemBuilder: (context, index) {
+  //       final hub = filteredHubs[index];
+  //       return _buildListCard(hub);
+  //     },
+  //   );
+  // }
 
   Widget _buildGridCard(Map<String, dynamic> hub) {
     return Container(
@@ -355,11 +358,10 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                   if (loadingProgress == null) return child;
                   return Center(
                     child: CircularProgressIndicator(
-                      value:
-                          loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   );
                 },
@@ -377,27 +379,26 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
           ),
 
           // Status tag
-          Container(
-            margin: EdgeInsets.only(left: 16, top: 16),
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color:
-                  hub['status'] == 'Active'
-                      ? Colors.green
-                      : hub['status'] == 'Maintenance'
-                      ? Colors.orange
-                      : Colors.red,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              hub['status'],
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          // Container(
+          //   margin: EdgeInsets.only(left: 16, top: 16),
+          //   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          //   decoration: BoxDecoration(
+          //     color: hub['status'] == 'Active'
+          //         ? Colors.green
+          //         : hub['status'] == 'Maintenance'
+          //             ? Colors.orange
+          //             : Colors.red,
+          //     borderRadius: BorderRadius.circular(4),
+          //   ),
+          //   child: Text(
+          //     hub['status'],
+          //     style: TextStyle(
+          //       color: Colors.white,
+          //       fontSize: 12,
+          //       fontWeight: FontWeight.w500,
+          //     ),
+          //   ),
+          // ),
 
           // Content
           Padding(
@@ -507,11 +508,10 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                   if (loadingProgress == null) return child;
                   return Center(
                     child: CircularProgressIndicator(
-                      value:
-                          loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   );
                 },
@@ -551,10 +551,9 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color:
-                              hub['status'] == 'Active'
-                                  ? Colors.green
-                                  : hub['status'] == 'Maintenance'
+                          color: hub['status'] == 'Active'
+                              ? Colors.green
+                              : hub['status'] == 'Maintenance'
                                   ? Colors.orange
                                   : Colors.red,
                           borderRadius: BorderRadius.circular(4),
@@ -633,64 +632,63 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
   void _showHubOptions(BuildContext context, Map<String, dynamic> hub) {
     showDialog(
       context: context,
-      builder:
-          (context) => SimpleDialog(
-            title: Text('Manage ${hub['name']}'),
-            children: [
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Edit hub logic
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text('Edit Details'),
-                  ],
-                ),
-              ),
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // View machines logic
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.local_laundry_service, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text('View Machines'),
-                  ],
-                ),
-              ),
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Change status logic
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.sync_alt, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Text('Change Status'),
-                  ],
-                ),
-              ),
-              SimpleDialogOption(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // Delete hub logic
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete Hub'),
-                  ],
-                ),
-              ),
-            ],
+      builder: (context) => SimpleDialog(
+        title: Text('Manage ${hub['name']}'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context);
+              // Edit hub logic
+            },
+            child: Row(
+              children: [
+                Icon(Icons.edit, color: Colors.blue),
+                SizedBox(width: 8),
+                Text('Edit Details'),
+              ],
+            ),
           ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context);
+              // View machines logic
+            },
+            child: Row(
+              children: [
+                Icon(Icons.local_laundry_service, color: Colors.green),
+                SizedBox(width: 8),
+                Text('View Machines'),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context);
+              // Change status logic
+            },
+            child: Row(
+              children: [
+                Icon(Icons.sync_alt, color: Colors.orange),
+                SizedBox(width: 8),
+                Text('Change Status'),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context);
+              // Delete hub logic
+            },
+            child: Row(
+              children: [
+                Icon(Icons.delete, color: Colors.red),
+                SizedBox(width: 8),
+                Text('Delete Hub'),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

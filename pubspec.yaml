@@ -46,6 +46,7 @@ dependencies:
   flutter_google_places_sdk: ^0.3.10
   url_launcher: ^6.3.1
   permission_handler: ^11.4.0
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

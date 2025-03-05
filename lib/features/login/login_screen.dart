@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lavatory_admin/features/homescreen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'loginbloc/login_bloc_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,6 +18,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isObscure = true;
 
   final LoginBlocBloc _loginBloc = LoginBlocBloc();
+
+  @override
+  void initState() {
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (Supabase.instance.client.auth.currentUser != null) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+          (route) => false,
+        );
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
