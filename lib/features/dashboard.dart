@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override
@@ -16,14 +17,48 @@ class DashboardScreen extends StatelessWidget {
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             children: [
-              _buildStatCard('Laundry Hubs', '40', Icons.store_outlined),
-              _buildStatCard('Total Users', '4000', Icons.people_outlined),
-              _buildStatCard(
-                'Current Reports',
-                '10',
-                Icons.description_outlined,
+              FutureBuilder(
+                future: Supabase.instance.client.from('hubs').select().count(),
+                builder: (context, snapshot) {
+                  int? count = snapshot.data?.count ?? 0;
+
+                  return _buildStatCard(
+                      'Laundry Hubs', '$count', Icons.store_outlined);
+                },
               ),
-              _buildStatCard('Feedbacks', '270', Icons.comment_outlined),
+              FutureBuilder(
+                future:
+                    Supabase.instance.client.from('customers').select().count(),
+                builder: (context, snapshot) {
+                  int? count = snapshot.data?.count ?? 0;
+
+                  return _buildStatCard(
+                      'Total Users', '$count', Icons.people_outlined);
+                },
+              ),
+              FutureBuilder(
+                future:
+                    Supabase.instance.client.from('reports').select().count(),
+                builder: (context, snapshot) {
+                  int? count = snapshot.data?.count ?? 0;
+
+                  return _buildStatCard(
+                    'Current Reports',
+                    '$count',
+                    Icons.description_outlined,
+                  );
+                },
+              ),
+              FutureBuilder(
+                future:
+                    Supabase.instance.client.from('feedbacks').select().count(),
+                builder: (context, snapshot) {
+                  int? count = snapshot.data?.count ?? 0;
+
+                  return _buildStatCard(
+                      'Feedbacks', '$count', Icons.comment_outlined);
+                },
+              ),
             ],
           ),
         ],

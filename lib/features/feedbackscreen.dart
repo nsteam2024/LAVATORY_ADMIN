@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class Report {
+class Feedback {
   final String id;
-  final String title;
   final String report;
   final String userName;
   final DateTime date;
   final double totalSales;
   final int totalTransactions;
 
-  Report({
+  Feedback({
     required this.id,
-    required this.title,
     required this.report,
     required this.userName,
     required this.date,
@@ -21,31 +19,30 @@ class Report {
   });
 }
 
-class ReportsScreen extends StatefulWidget {
-  const ReportsScreen({super.key});
+class FeedbacksScreen extends StatefulWidget {
+  const FeedbacksScreen({super.key});
 
   @override
-  State<ReportsScreen> createState() => _ReportsScreenState();
+  State<FeedbacksScreen> createState() => _FeedbacksScreenState();
 }
 
-class _ReportsScreenState extends State<ReportsScreen> {
+class _FeedbacksScreenState extends State<FeedbacksScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Report> reports = [];
-  List<Report> filteredReports = [];
+  List<Feedback> reports = [];
+  List<Feedback> filteredFeedbacks = [];
 
   @override
   void initState() {
     super.initState();
     Supabase.instance.client
-        .from('reports')
+        .from('feedbacks')
         .select('*, customers(*)')
         .then((response) {
       final reportsData = response;
       reports = reportsData.map((reportData) {
-        return Report(
+        return Feedback(
           id: reportData['id'].toString(),
-          title: reportData['title'].toString(),
-          report: reportData['message'].toString(),
+          report: reportData['feedback'].toString(),
           userName: reportData['customers']['name'].toString(),
           date: DateTime.parse(reportData['created_at'].toString()),
           totalSales: 1,
@@ -54,22 +51,22 @@ class _ReportsScreenState extends State<ReportsScreen> {
       }).toList();
 
       setState(() {
-        filteredReports = List.from(reports);
+        filteredFeedbacks = List.from(reports);
       });
     }).onError((e, s) {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error fetching reports: ${e!.toString()}")));
     });
     ;
-    // filteredReports = List.from(reports);
+    // filteredFeedbacks = List.from(reports);
   }
 
-  // void _generateSampleReports() {
+  // void _generateSampleFeedbacks() {
   //   reports = List.generate(
   //     10,
-  //     (index) => Report(
+  //     (index) => Feedback(
   //       id: 'RPT${1000 + index}',
-  //       title: 'Daily Report #${index + 1}',
+  //       title: 'Daily Feedback #${index + 1}',
   //       report: 'Freedom Fuel Filling Station',
   //       userName: 'Admin',
   //       date: DateTime.now().subtract(Duration(days: index)),
@@ -79,14 +76,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
   //   );
   // }
 
-  void _filterReports(String query) {
+  void _filterFeedbacks(String query) {
     setState(() {
       if (query.isEmpty) {
-        filteredReports = List.from(reports);
+        filteredFeedbacks = List.from(reports);
       } else {
-        filteredReports = reports.where((report) {
-          return report.title.toLowerCase().contains(query.toLowerCase()) ||
-              report.report.toLowerCase().contains(
+        filteredFeedbacks = reports.where((report) {
+          return report.report.toLowerCase().contains(
                     query.toLowerCase(),
                   ) ||
               report.id.toLowerCase().contains(query.toLowerCase());
@@ -104,7 +100,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           const Padding(
             padding: const EdgeInsets.only(left: 40, right: 40, top: 60),
             child: Text(
-              'Reports',
+              'Feedbacks',
               style: TextStyle(
                 fontSize: 28.0,
                 fontWeight: FontWeight.bold,
@@ -129,7 +125,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    onChanged: _filterReports,
+                    onChanged: _filterFeedbacks,
                   ),
                 ),
                 // const SizedBox(width: 8.0),
@@ -157,9 +153,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 horizontal: 16.0,
                 vertical: 8.0,
               ),
-              itemCount: filteredReports.length,
+              itemCount: filteredFeedbacks.length,
               itemBuilder: (context, index) {
-                final report = filteredReports[index];
+                final report = filteredFeedbacks[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12.0),
                   shape: RoundedRectangleBorder(
@@ -174,16 +170,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              '#${report.title}',
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                             // ElevatedButton(
                             //   onPressed: () {
-                            //     _showReportDetails(context, report);
+                            //     _showFeedbackDetails(context, report);
                             //   },
                             //   style: ElevatedButton.styleFrom(
                             //     backgroundColor: Colors.blue,
@@ -206,7 +195,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             // const SizedBox(width: 8.0),
                             // TextButton(
                             //   onPressed: () {
-                            //     _showReportDetails(context, report);
+                            //     _showFeedbackDetails(context, report);
                             //   },
                             //   style: TextButton.styleFrom(
                             //     foregroundColor: Colors.blue,
@@ -242,7 +231,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
       //     // Generate new report functionality
-      //     _showCreateReportDialog(context);
+      //     _showCreateFeedbackDialog(context);
       //   },
       //   backgroundColor: Colors.blue,
       //   child: const Icon(Icons.add, color: Colors.white),
@@ -255,7 +244,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Filter Reports'),
+          title: const Text('Filter Feedbacks'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -335,7 +324,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
   }
 
-  void _showReportDetails(BuildContext context, Report report) {
+  void _showFeedbackDetails(BuildContext context, Feedback report) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -358,13 +347,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        report.title,
-                        style: const TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      // Text(
+                      //   report.title,
+                      //   style: const TextStyle(
+                      //     fontSize: 20.0,
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
                       IconButton(
                         icon: const Icon(Icons.close),
                         onPressed: () {
@@ -375,7 +364,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ),
                   const Divider(),
                   ListTile(
-                    title: const Text('Report'),
+                    title: const Text('Feedback'),
                     subtitle: Text(report.report),
                     leading: const Icon(
                       Icons.local_gas_station,
@@ -467,26 +456,27 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  void _showCreateReportDialog(BuildContext context) {
+  void _showCreateFeedbackDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Generate New Report'),
+          title: const Text('Generate New Feedback'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Report Type'),
+                decoration: const InputDecoration(labelText: 'Feedback Type'),
                 items: const [
-                  DropdownMenuItem(value: 'daily', child: Text('Daily Report')),
+                  DropdownMenuItem(
+                      value: 'daily', child: Text('Daily Feedback')),
                   DropdownMenuItem(
                     value: 'weekly',
-                    child: Text('Weekly Report'),
+                    child: Text('Weekly Feedback'),
                   ),
                   DropdownMenuItem(
                     value: 'monthly',
-                    child: Text('Monthly Report'),
+                    child: Text('Monthly Feedback'),
                   ),
                 ],
                 onChanged: (value) {},
@@ -532,9 +522,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
                 // Add the new report to the list
                 setState(() {
-                  final newReport = Report(
+                  final newFeedback = Feedback(
                     id: 'RPT${1000 + reports.length}',
-                    title: 'Daily Report #${reports.length + 1}',
+                    // title: 'Daily Feedback #${reports.length + 1}',
                     report: 'N S Laundry',
                     userName: 'Admin',
                     date: DateTime.now(),
@@ -542,14 +532,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     totalTransactions: 52,
                   );
 
-                  reports.insert(0, newReport);
-                  filteredReports = List.from(reports);
+                  reports.insert(0, newFeedback);
+                  filteredFeedbacks = List.from(reports);
                 });
 
                 // Show success message
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Report generated successfully'),
+                    content: Text('Feedback generated successfully'),
                     backgroundColor: Color(0xFF00A36C),
                   ),
                 );

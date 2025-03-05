@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lavatory_admin/features/dashboard.dart';
+import 'package:lavatory_admin/features/feedbackscreen.dart';
 import 'package:lavatory_admin/features/laundry_hubs/laundryhubs.dart';
 import 'package:lavatory_admin/features/login/login_screen.dart';
 import 'package:lavatory_admin/features/reportscreen.dart';
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     LaundryHubsScreen(),
     UsersPage(),
     ReportsScreen(),
-    CenterScreen(title: "Feedbacks"),
+    FeedbacksScreen(),
   ];
 
   @override

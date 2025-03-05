@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserModel {
   final String id;
@@ -28,53 +29,7 @@ class UsersPage extends StatefulWidget {
 }
 
 class _UsersPageState extends State<UsersPage> {
-  final List<UserModel> _users = [
-    UserModel(
-      id: "U001",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+1 (555) 123-4567",
-      joinDate: "12 Jan 2025",
-      bookingsCount: 12,
-      isActive: true,
-    ),
-    UserModel(
-      id: "U002",
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+1 (555) 987-6543",
-      joinDate: "05 Feb 2025",
-      bookingsCount: 8,
-      isActive: true,
-    ),
-    UserModel(
-      id: "U003",
-      name: "Robert Johnson",
-      email: "robert.johnson@example.com",
-      phone: "+1 (555) 456-7890",
-      joinDate: "18 Dec 2024",
-      bookingsCount: 15,
-      isActive: true,
-    ),
-    UserModel(
-      id: "U004",
-      name: "Sarah Williams",
-      email: "sarah.williams@example.com",
-      phone: "+1 (555) 234-5678",
-      joinDate: "30 Jan 2025",
-      bookingsCount: 5,
-      isActive: false,
-    ),
-    UserModel(
-      id: "U005",
-      name: "Michael Brown",
-      email: "michael.brown@example.com",
-      phone: "+1 (555) 876-5432",
-      joinDate: "15 Feb 2025",
-      bookingsCount: 3,
-      isActive: true,
-    ),
-  ];
+  final List<UserModel> _users = [];
 
   String _searchQuery = "";
   String _filterOption = "All";
@@ -82,9 +37,10 @@ class _UsersPageState extends State<UsersPage> {
   List<UserModel> get filteredUsers {
     return _users.where((user) {
       // Apply search filter
-      final matchesSearch = user.name.toLowerCase().contains(_searchQuery.toLowerCase()) || 
-                           user.email.toLowerCase().contains(_searchQuery.toLowerCase());
-      
+      final matchesSearch =
+          user.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              user.email.toLowerCase().contains(_searchQuery.toLowerCase());
+
       // Apply status filter
       bool matchesFilter = true;
       if (_filterOption == "Active") {
@@ -92,9 +48,39 @@ class _UsersPageState extends State<UsersPage> {
       } else if (_filterOption == "Inactive") {
         matchesFilter = !user.isActive;
       }
-      
+
       return matchesSearch && matchesFilter;
     }).toList();
+  }
+
+  @override
+  void initState() {
+    Supabase.instance.client
+        .from('customers')
+        .select('*, laundry_orders(*)')
+        .then((response) {
+      final data = response;
+      final users = data.map((user) {
+        return UserModel(
+          id: user['id'].toString(),
+          name: user['name'].toString(),
+          email: user['email'].toString(),
+          phone: user['phone'].toString(),
+          joinDate: user['created_at'].toString(),
+          bookingsCount: user['laundry_orders']?.length ?? 0,
+          isActive: user['is_active'] as bool,
+        );
+      }).toList();
+
+      setState(() {
+        _users.clear();
+        _users.addAll(users);
+      });
+    }).onError((e, s) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error fetching users: ${e!.toString()}")));
+    });
+    super.initState();
   }
 
   @override
@@ -103,7 +89,7 @@ class _UsersPageState extends State<UsersPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          // _buildHeader(),
           _buildSearchAndFilters(),
           Expanded(
             child: _buildUsersList(),
@@ -120,31 +106,31 @@ class _UsersPageState extends State<UsersPage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Users",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Row(
-            children: [
-              _buildStatCard("Total Users", "4000", Colors.blue[50]!),
-              const SizedBox(width: 16),
-              _buildStatCard("Active Today", "270", Colors.green[50]!),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildHeader() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     color: Colors.white,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         const Text(
+  //           "Users",
+  //           style: TextStyle(
+  //             fontSize: 24,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //         Row(
+  //           children: [
+  //             _buildStatCard("Total Users", "4000", Colors.blue[50]!),
+  //             const SizedBox(width: 16),
+  //             _buildStatCard("Active Today", "270", Colors.green[50]!),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildStatCard(String title, String value, Color bgColor) {
     return Container(
@@ -217,7 +203,8 @@ class _UsersPageState extends State<UsersPage> {
                   items: const [
                     DropdownMenuItem(value: "All", child: Text("All Users")),
                     DropdownMenuItem(value: "Active", child: Text("Active")),
-                    DropdownMenuItem(value: "Inactive", child: Text("Inactive")),
+                    DropdownMenuItem(
+                        value: "Inactive", child: Text("Inactive")),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -228,19 +215,19 @@ class _UsersPageState extends State<UsersPage> {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          ElevatedButton.icon(
-            onPressed: () {
-              _showExportDialog();
-            },
-            icon: const Icon(Icons.download),
-            label: const Text("Export"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            ),
-          ),
+          // const SizedBox(width: 16),
+          // ElevatedButton.icon(
+          //   onPressed: () {
+          //     _showExportDialog();
+          //   },
+          //   icon: const Icon(Icons.download),
+          //   label: const Text("Export"),
+          //   style: ElevatedButton.styleFrom(
+          //     backgroundColor: Colors.blue,
+          //     foregroundColor: Colors.white,
+          //     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -269,14 +256,38 @@ class _UsersPageState extends State<UsersPage> {
               ),
               child: Row(
                 children: const [
-                  Expanded(flex: 1, child: Text("ID", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 2, child: Text("Name", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 2, child: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 2, child: Text("Phone", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 1, child: Text("Joined", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 1, child: Text("Bookings", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 1, child: Text("Status", style: TextStyle(fontWeight: FontWeight.bold))),
-                  Expanded(flex: 1, child: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 1,
+                      child: Text("ID",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 2,
+                      child: Text("Name",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 2,
+                      child: Text("Email",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 2,
+                      child: Text("Phone",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 1,
+                      child: Text("Joined",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 1,
+                      child: Text("Bookings",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 1,
+                      child: Text("Status",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 1,
+                      child: Text("Actions",
+                          style: TextStyle(fontWeight: FontWeight.bold))),
                 ],
               ),
             ),
@@ -284,7 +295,8 @@ class _UsersPageState extends State<UsersPage> {
             Expanded(
               child: ListView.separated(
                 itemCount: filteredUsers.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, thickness: 1),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, thickness: 1),
                 itemBuilder: (context, index) {
                   final user = filteredUsers[index];
                   return Container(
@@ -297,19 +309,26 @@ class _UsersPageState extends State<UsersPage> {
                         Expanded(flex: 2, child: Text(user.email)),
                         Expanded(flex: 2, child: Text(user.phone)),
                         Expanded(flex: 1, child: Text(user.joinDate)),
-                        Expanded(flex: 1, child: Text(user.bookingsCount.toString())),
                         Expanded(
-                          flex: 1, 
+                            flex: 1,
+                            child: Text(user.bookingsCount.toString())),
+                        Expanded(
+                          flex: 1,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: user.isActive ? Colors.green[50] : Colors.red[50],
+                              color: user.isActive
+                                  ? Colors.green[50]
+                                  : Colors.red[50],
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               user.isActive ? "Active" : "Inactive",
                               style: TextStyle(
-                                color: user.isActive ? Colors.green[800] : Colors.red[800],
+                                color: user.isActive
+                                    ? Colors.green[800]
+                                    : Colors.red[800],
                                 fontSize: 12,
                               ),
                             ),
@@ -354,7 +373,8 @@ class _UsersPageState extends State<UsersPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Showing ${filteredUsers.length} of ${_users.length} users"),
+                  Text(
+                      "Showing ${filteredUsers.length} of ${_users.length} users"),
                   Row(
                     children: [
                       IconButton(
@@ -362,7 +382,8 @@ class _UsersPageState extends State<UsersPage> {
                         onPressed: () {},
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.blue,
                           borderRadius: BorderRadius.circular(4),
@@ -438,8 +459,7 @@ class _UsersPageState extends State<UsersPage> {
               Navigator.pop(context);
               // Would add user to list here in a real implementation
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("User added successfully!"))
-              );
+                  const SnackBar(content: Text("User added successfully!")));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
@@ -518,8 +538,7 @@ class _UsersPageState extends State<UsersPage> {
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("User updated successfully!"))
-              );
+                  const SnackBar(content: Text("User updated successfully!")));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
@@ -549,8 +568,7 @@ class _UsersPageState extends State<UsersPage> {
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("User deleted successfully!"))
-              );
+                  const SnackBar(content: Text("User deleted successfully!")));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -580,9 +598,8 @@ class _UsersPageState extends State<UsersPage> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Exporting users as CSV..."))
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Exporting users as CSV...")));
                     },
                     icon: const Icon(Icons.description),
                     label: const Text("CSV"),
@@ -597,9 +614,8 @@ class _UsersPageState extends State<UsersPage> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Exporting users as PDF..."))
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Exporting users as PDF...")));
                     },
                     icon: const Icon(Icons.picture_as_pdf),
                     label: const Text("PDF"),
@@ -614,9 +630,8 @@ class _UsersPageState extends State<UsersPage> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Exporting users as Excel..."))
-                      );
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Exporting users as Excel...")));
                     },
                     icon: const Icon(Icons.table_chart),
                     label: const Text("Excel"),
@@ -737,8 +752,8 @@ class _LavatoryScaffoldState extends State<LavatoryScaffold> {
           const VerticalDivider(thickness: 1, width: 1),
           // This is where the selected page content goes
           Expanded(
-            child: _selectedIndex == 2 
-                ? const UsersPage() 
+            child: _selectedIndex == 2
+                ? const UsersPage()
                 : Center(child: Text("Selected page: $_selectedIndex")),
           ),
         ],

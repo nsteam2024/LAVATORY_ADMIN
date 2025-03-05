@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lavatory_admin/common_widget/custom_button.dart';
 import 'package:lavatory_admin/features/laundry_hubs/add_edit_hub_dialog.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LaundryHubsScreen extends StatefulWidget {
   @override
@@ -11,81 +13,18 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
   String _searchQuery = '';
   String _filterValue = 'All';
 
-  final List<Map<String, dynamic>> _hubs = [
-    {
-      'id': 1,
-      'name': 'Downtown Laundry Center',
-      'address': '123 Main St, Downtown',
-      'status': 'Active',
-      'machines': 8,
-      'rating': 4.8,
-      'imageUrl':
-          'https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      'id': 2,
-      'name': 'Westside Wash House',
-      'address': '456 Elm St, Westside',
-      'status': 'Active',
-      'machines': 12,
-      'rating': 4.5,
-      'imageUrl':
-          'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      'id': 3,
-      'name': 'North Campus Laundromat',
-      'address': '789 University Ave, Northside',
-      'status': 'Maintenance',
-      'machines': 10,
-      'rating': 4.2,
-      'imageUrl':
-          'https://images.unsplash.com/photo-1567113463300-102a7eb3cb26?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      'id': 4,
-      'name': 'Eastside Express Laundry',
-      'address': '321 Oak St, Eastside',
-      'status': 'Active',
-      'machines': 15,
-      'rating': 4.7,
-      'imageUrl':
-          'https://images.unsplash.com/photo-1521656693074-0ef32e80a5d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      'id': 5,
-      'name': 'Southpoint Laundry Services',
-      'address': '555 Pine St, Southside',
-      'status': 'Inactive',
-      'machines': 6,
-      'rating': 3.9,
-      'imageUrl':
-          'https://images.unsplash.com/photo-1527515545081-5db817172677?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      'id': 6,
-      'name': 'Central Square Laundry',
-      'address': '777 Center Ave, Midtown',
-      'status': 'Active',
-      'machines': 20,
-      'rating': 4.9,
-      'imageUrl':
-          'https://images.unsplash.com/photo-1594631776887-b8ad5a0836d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-  ];
+  // List<Map<String, dynamic>> get filteredHubs {
+  //   return _hubs.where((hub) {
+  //     final matchesSearch =
+  //         hub['name'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
+  //             hub['address'].toLowerCase().contains(_searchQuery.toLowerCase());
 
-  List<Map<String, dynamic>> get filteredHubs {
-    return _hubs.where((hub) {
-      final matchesSearch =
-          hub['name'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              hub['address'].toLowerCase().contains(_searchQuery.toLowerCase());
+  //     final matchesFilter =
+  //         _filterValue == 'All' || hub['status'] == _filterValue;
 
-      final matchesFilter =
-          _filterValue == 'All' || hub['status'] == _filterValue;
-
-      return matchesSearch && matchesFilter;
-    }).toList();
-  }
+  //     return matchesSearch && matchesFilter;
+  //   }).toList();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -112,11 +51,12 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  onPressed: () {
-                    showDialog(
+                  onPressed: () async {
+                    await showDialog(
                       context: context,
                       builder: (context) => AddEditHubDialog(),
                     );
+                    setState(() {});
                   },
                 ),
               ],
@@ -212,91 +152,105 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
           // ),
 
           // Stats summary
-          Container(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              children: [
-                _buildStatCard('Total Hubs', '${_hubs.length}', Colors.blue),
-                SizedBox(width: 16),
-                _buildStatCard(
-                  'Active Hubs',
-                  '${_hubs.where((hub) => hub['status'] == 'Active').length}',
-                  Colors.green,
-                ),
-                SizedBox(width: 16),
-                _buildStatCard(
-                  'Maintenance',
-                  '${_hubs.where((hub) => hub['status'] == 'Maintenance').length}',
-                  Colors.orange,
-                ),
-                SizedBox(width: 16),
-                _buildStatCard(
-                  'Inactive',
-                  '${_hubs.where((hub) => hub['status'] == 'Inactive').length}',
-                  Colors.red,
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.all(16),
+          //   child: Row(
+          //     children: [
+          //       _buildStatCard('Total Hubs', '${_hubs.length}', Colors.blue),
+          //       SizedBox(width: 16),
+          //       _buildStatCard(
+          //         'Active Hubs',
+          //         '${_hubs.where((hub) => hub['status'] == 'Active').length}',
+          //         Colors.green,
+          //       ),
+          //       SizedBox(width: 16),
+          //       _buildStatCard(
+          //         'Maintenance',
+          //         '${_hubs.where((hub) => hub['status'] == 'Maintenance').length}',
+          //         Colors.orange,
+          //       ),
+          //       SizedBox(width: 16),
+          //       _buildStatCard(
+          //         'Inactive',
+          //         '${_hubs.where((hub) => hub['status'] == 'Inactive').length}',
+          //         Colors.red,
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
           // Hub list/grid
-          Expanded(child: _buildGridView()),
+          FutureBuilder(
+              future: Supabase.instance.client
+                  .from('hubs')
+                  .select('*')
+                  .order('name', ascending: true),
+              builder: (context, snap) {
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                //handle error
+                if (snap.hasError) {
+                  return Center(child: Text('Error: ${snap.error}'));
+                }
+                return Expanded(child: _buildGridView(snap.data ?? []));
+              }),
           // Expanded(child: _isGridView ? _buildGridView() : _buildListView()),
         ],
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, Color color) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 5,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildStatCard(String title, String value, Color color) {
+  //   return Expanded(
+  //     child: Container(
+  //       padding: EdgeInsets.all(16),
+  //       decoration: BoxDecoration(
+  //         color: Colors.white,
+  //         borderRadius: BorderRadius.circular(8),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: Colors.black.withOpacity(0.05),
+  //             blurRadius: 5,
+  //             offset: Offset(0, 2),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Row(
+  //         children: [
+  //           Container(
+  //             width: 50,
+  //             height: 50,
+  //             decoration: BoxDecoration(
+  //               color: color.withOpacity(0.1),
+  //               shape: BoxShape.circle,
+  //             ),
+  //             child: Center(
+  //               child: Text(
+  //                 value,
+  //                 style: TextStyle(
+  //                   color: color,
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 18,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           SizedBox(width: 16),
+  //           Text(
+  //             title,
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.w500,
+  //               color: Colors.grey[700],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildGridView() {
+  Widget _buildGridView(List hubs) {
     return Padding(
       padding: EdgeInsets.all(16),
       child: GridView.builder(
@@ -306,9 +260,9 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
           mainAxisSpacing: 16,
           childAspectRatio: 2 / 1.2,
         ),
-        itemCount: filteredHubs.length,
+        itemCount: hubs.length,
         itemBuilder: (context, index) {
-          final hub = filteredHubs[index];
+          final hub = hubs[index];
           return _buildGridCard(hub);
         },
       ),
@@ -352,7 +306,7 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                 topRight: Radius.circular(8),
               ),
               child: Image.network(
-                hub['imageUrl'],
+                hub['image_url'],
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -414,7 +368,7 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  hub['address'],
+                  '${hub['address_line']}, ${hub['place']}, ${hub['district']}, ${hub['state']}, ${hub['pin']}',
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -422,55 +376,87 @@ class _LaundryHubsScreenState extends State<LaundryHubsScreen> {
                 SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.local_laundry_service,
                       size: 16,
                       color: Colors.blue,
                     ),
                     SizedBox(width: 4),
                     Text(
-                      '${hub['machines']} Machines',
+                      '${hub['capacity']} Machines',
                       style: TextStyle(fontSize: 12),
                     ),
                     Spacer(),
-                    Icon(Icons.star, size: 16, color: Colors.amber),
-                    SizedBox(width: 4),
-                    Text('${hub['rating']}', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+                // const Spacer(),
+                const SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AddEditHubDialog(
+                            hubData: hub,
+                          ),
+                        ).then((value) => setState(() {}));
+                      },
+                      color: Colors.amber,
+                      icon: Icon(
+                        Icons.edit,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        await Supabase.instance.client.auth.admin
+                            .deleteUser(hub['user_id']);
+
+                        setState(() {});
+                      },
+                      color: Colors.red,
+                      icon: Icon(
+                        Icons.delete,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
 
-          Spacer(),
+          // Spacer(),
 
-          // Actions
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    // View details
-                  },
-                  child: Text('Details'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.blue,
-                    side: BorderSide(color: Colors.blue),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                    minimumSize: Size(0, 30),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.more_vert),
-                  onPressed: () {
-                    _showHubOptions(context, hub);
-                  },
-                ),
-              ],
-            ),
-          ),
+          // // Actions
+          // Padding(
+          //   padding: EdgeInsets.all(16),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       OutlinedButton(
+          //         onPressed: () {
+          //           // View details
+          //         },
+          //         child: Text('Details'),
+          //         style: OutlinedButton.styleFrom(
+          //           foregroundColor: Colors.blue,
+          //           side: BorderSide(color: Colors.blue),
+          //           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          //           minimumSize: Size(0, 30),
+          //         ),
+          //       ),
+          //       IconButton(
+          //         icon: Icon(Icons.more_vert),
+          //         onPressed: () {
+          //           _showHubOptions(context, hub);
+          //         },
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
